@@ -1,41 +1,21 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+const express = require('express');
+const router = require('./routes/index')
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
+const bodyParser = require('body-parser');
+const app = new express();
 
-var app = express();
+//extended:false 不使用第三方模块处理参数，使用Nodejs内置模块querystring处理
+app.use(bodyParser.urlencoded({extended:false}))
+app.use(bodyParser.json())
+// 解析 application/json
+app.use(express.json()); 
+// 解析 application/x-www-form-urlencoded
+app.use(express.urlencoded());
 
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'ejs');
+//添加路由/接口
+app.use(router);
 
-app.use(logger('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+module.exports = app
 
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
 
-// catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  next(createError(404));
-});
 
-// error handler
-app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
-
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
-});
-
-module.exports = app;
